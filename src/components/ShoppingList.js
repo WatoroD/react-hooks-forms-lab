@@ -1,32 +1,54 @@
 import React, { useState } from "react";
-import ItemForm from "./ItemForm";
-import Filter from "./Filter";
-import Item from "./Item";
+import uuid from 'uuid';
+import Filter from './Filter';
+import ItemForm from './ItemForm';
+import Item from './Item';
 
-function ShoppingList({ items }) {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+const ShoppingList = () => {
+  const [items, setItems] = useState([
+    { id: uuid(), name: 'Apple', category: 'Fruits' },
+    { id: uuid(), name: 'Carrot', category: 'Vegetables' },
+    { id: uuid(), name: 'Milk', category: 'Dairy' },
+  ]);
 
-  function handleCategoryChange(event) {
-    setSelectedCategory(event.target.value);
-  }
+  const [searchText, setSearchText] = useState('');
+  const [category, setCategory] = useState('');
 
-  const itemsToDisplay = items.filter((item) => {
-    if (selectedCategory === "All") return true;
+  const handleSearchChange = (text) => {
+    setSearchText(text);
+  };
 
-    return item.category === selectedCategory;
+  const handleCategoryChange = (category) => {
+    setCategory(category);
+  };
+
+  const handleItemFormSubmit = (newItem) => {
+    setItems([...items, newItem]);
+  };
+
+  const filteredItems = items.filter((item) => {
+    return (
+      item.name.toLowerCase().includes(searchText.toLowerCase()) &&
+      (category === '' || item.category === category)
+    );
   });
 
   return (
     <div className="ShoppingList">
-      <ItemForm />
-      <Filter onCategoryChange={handleCategoryChange} />
+      <ItemForm onItemFormSubmit={handleItemFormSubmit} />
+      <Filter
+        value={searchText}
+        onSearchChange={handleSearchChange}
+        category={category}
+        onCategoryChange={handleCategoryChange}
+      />
       <ul className="Items">
-        {itemsToDisplay.map((item) => (
+        {filteredItems.map((item) => (
           <Item key={item.id} name={item.name} category={item.category} />
         ))}
       </ul>
     </div>
   );
-}
+};
 
 export default ShoppingList;
